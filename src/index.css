@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 1. Force Light Mode & Set Base Font */
+:root {
+  color-scheme: light; /* Disables auto-dark mode */
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #F3F4F6; /* Light gray background from your design */
+  color: #111827; /* Dark gray text for better readability */
+}
+
+/* 2. Reset Body to allow full-screen layouts */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+  display: block;
+  overflow-x: hidden; /* Prevents accidental side-scroll */
+}
+
+/* 3. Utility to stop numbers from "jumping" in the timer */
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+  
+  /* Optional: Smooth scroll for the whole page */
+  html {
+    scroll-behavior: smooth;
+  }
+}
