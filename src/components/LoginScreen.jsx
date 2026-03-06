@@ -400,7 +400,7 @@ const LoginScreen = ({ onSessionStart }) => {
                 <h2 className="text-2xl font-bold mb-2">Manual Login</h2>
                 <p className="text-gray-500 mb-6">Enter your Professor NEU ID Number.</p>
                 <form onSubmit={submitManualLogin}>
-                    <input type="text" autoFocus value={manualId} onChange={(e) => setManualId(e.target.value)} placeholder="e.g. 23-13565-543" className="w-full p-4 border-2 border-gray-300 rounded-xl text-xl font-mono focus:border-blue-500 focus:outline-none mb-6"/>
+                    <input type="text" autoFocus value={manualId} onChange={(e) => setManualId(e.target.value)} placeholder="e.g. 25-12345-678" className="w-full p-4 border-2 border-gray-300 rounded-xl text-xl font-mono focus:border-blue-500 focus:outline-none mb-6"/>
                     <div className="flex gap-3">
                         <button type="button" onClick={() => setIsManualLoginOpen(false)} className="flex-1 py-3 text-gray-600 font-bold hover:bg-gray-100 rounded-xl">Cancel</button>
                         <button type="submit" disabled={isSubmitting} className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg">{isSubmitting ? "..." : "Clock In ➤"}</button>
