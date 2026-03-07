@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { updateIssue } from '../utils/firebase';
+// ADDED RECHARTS IMPORTS
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [], onIssueResolved }) => {
+// ADDED allSessions TO PROPS
+const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [], allSessions = [], onIssueResolved }) => {
   // --- STATE FOR MODALS ---
-  const [activeModal, setActiveModal] = useState(null); // 'rooms', 'reports', or null
+  const [activeModal, setActiveModal] = useState(null); // 'rooms', 'reports', 'usage', or null
   const [selectedIssue, setSelectedIssue] = useState(null); // Track selected issue for detailed view
   const [isResolving, setIsResolving] = useState(false); // Track if resolving an issue
   
@@ -57,6 +60,39 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
     return 'Not available';
   };
   
+  // --- GRAPH DATA PROCESSING ---
+  // Calculates total usage hours per day for the last 7 days
+  const graphData = useMemo(() => {
+    if (!allSessions || allSessions.length === 0) return [];
+
+    const last7Days = {};
+    for(let i=6; i>=0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      last7Days[dateStr] = 0; 
+    }
+
+    allSessions.forEach(session => {
+      if(session.timeIn && session.timeOut) {
+          const start = session.timeIn?.toDate ? session.timeIn.toDate() : new Date(session.timeIn);
+          const end = session.timeOut?.toDate ? session.timeOut.toDate() : new Date(session.timeOut);
+          
+          const dateStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+          if(last7Days[dateStr] !== undefined) {
+             const hours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+             last7Days[dateStr] += hours;
+          }
+      }
+    });
+
+    return Object.keys(last7Days).map(date => ({
+       name: date,
+       Hours: Number(last7Days[date].toFixed(1))
+    }));
+  }, [allSessions]);
+
   // --- DYNAMIC MATH ---
   const totalRooms = 10; // Based on your LoginScreen rooms array
   const occupancyPercentage = Math.round((activeRooms / totalRooms) * 100) || 0;
@@ -83,17 +119,20 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
           </p>
         </div>
         
-        {/* Avg Daily Usage Card (Static for now) */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative">
+        {/* Avg Daily Usage Card (UPDATED TO BE CLICKABLE) */}
+        <div 
+          onClick={() => setActiveModal('usage')}
+          className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative cursor-pointer hover:shadow-md transition-shadow hover:border-indigo-300"
+        >
           <h3 className="text-sm font-semibold text-gray-500 mb-2">Avg Daily Usage</h3>
           <p className="text-3xl font-bold text-gray-900 flex items-baseline gap-1">
             {avgUsage} <span className="text-lg font-medium text-gray-400">Hours</span>
           </p>
           <div className="absolute top-6 right-6 bg-indigo-50 text-indigo-500 p-2 rounded-lg w-10 h-10 flex items-center justify-center">
-             ⏱️
+             📈
           </div>
-          <p className="text-xs text-gray-400 font-medium mt-4 flex items-center gap-1">
-             Based on completed sessions
+          <p className="text-xs text-indigo-500 font-medium mt-4 flex items-center gap-1">
+             Click to view analytics
           </p>
         </div>
 
@@ -114,6 +153,45 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
       </div>
 
       {/* --- MODALS --- */}
+
+      {/* NEW: Analytics / Usage Graph Modal */}
+      {activeModal === 'usage' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl p-8 max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Usage Analytics</h2>
+                <p className="text-sm text-gray-500 mt-1">Total lab utilization hours over the last 7 days.</p>
+              </div>
+              <button onClick={() => setActiveModal(null)} className="text-gray-400 hover:text-gray-800 text-3xl font-bold">&times;</button>
+            </div>
+            
+            <div className="flex-1 min-h-[400px] w-full mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={graphData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dx={-10} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '5 5' }}
+                  />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }}/>
+                  <Line 
+                    type="monotone" 
+                    dataKey="Hours" 
+                    name="Total Usage Hours"
+                    stroke="#6366f1" 
+                    strokeWidth={4} 
+                    dot={{ r: 6, strokeWidth: 2, fill: '#fff' }} 
+                    activeDot={{ r: 8, stroke: '#6366f1', strokeWidth: 2, fill: '#fff' }} 
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* 1. Reports Modal */}
       {activeModal === 'reports' && !selectedIssue && (
@@ -139,7 +217,7 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
                         <span className="font-bold text-orange-800">{report.room || 'General'}</span>
                         <span className="text-xs text-orange-600 font-bold bg-orange-200 px-2 py-1 rounded uppercase">Pending</span>
                       </div>
-                      <p className="text-gray-700">{report.description}</p>
+                      <p className="text-gray-700">{report.description || report.issue || "No details provided."}</p>
                       <p className="text-xs text-gray-500 mt-2">Click to view details →</p>
                     </div>
                   ))}
@@ -180,7 +258,7 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
               <div>
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Issue Description</h3>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <p className="text-gray-800 leading-relaxed">{selectedIssue.description}</p>
+                  <p className="text-gray-800 leading-relaxed">{selectedIssue.description || selectedIssue.issue}</p>
                 </div>
               </div>
 
@@ -197,7 +275,7 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Status</h3>
                 <div className="flex gap-2">
                   <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase ${
-                    selectedIssue.status === 'open' 
+                    selectedIssue.status === 'open' || selectedIssue.status === 'pending'
                       ? 'bg-orange-200 text-orange-600'
                       : selectedIssue.status === 'resolved'
                       ? 'bg-green-200 text-green-600'
@@ -209,11 +287,11 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
               </div>
 
               {/* Timestamp if available */}
-              {selectedIssue.reportedAt && (
+              {(selectedIssue.reportedAt || selectedIssue.timestamp) && (
                 <div>
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Reported At</h3>
                   <p className="text-gray-700">
-                    {formatTimestamp(selectedIssue.reportedAt)}
+                    {formatTimestamp(selectedIssue.reportedAt || selectedIssue.timestamp)}
                   </p>
                 </div>
               )}
