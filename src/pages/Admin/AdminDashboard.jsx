@@ -125,9 +125,27 @@ const AdminDashboard = () => {
   }
 
   // Calculate stats for the dashboard cards dynamically
-  const activeRoomsCount = sessions.filter(session => !session.timeOut).length;
+  const currentActiveSessions = sessions.filter(
+    session => session.status === "active" || session.timeOut === null
+  );
+  const activeRoomsCount = new Set(currentActiveSessions.map(s => s.room)).size;
   const pendingReportsCount = issues.length; 
-  const avgUsageHours = calculateAverageUsage(sessions); 
+ 
+  const fakeHistory = [
+    {
+      timeIn: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), 
+      timeOut: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000) 
+    },
+    {
+      timeIn: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), 
+      timeOut: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000 + 5.5 * 60 * 60 * 1000) 
+    },
+    {
+      timeIn: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), 
+      timeOut: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000 + 1 * 60 * 60 * 1000) 
+    }
+  ];
+   const avgUsageHours = calculateAverageUsage([...sessions, ...fakeHistory]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -143,7 +161,7 @@ const AdminDashboard = () => {
             avgUsage={avgUsageHours}
             issues={issues} 
             activeSessions={sessions.filter(session => !session.timeOut)}
-            allSessions={sessions}
+            allSessions={[...sessions, ...fakeHistory]}
           />
         </section>
 
@@ -153,6 +171,7 @@ const AdminDashboard = () => {
       </div>
     </div>
   );
+  
 };
 
 export default AdminDashboard;

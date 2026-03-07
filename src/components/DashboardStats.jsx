@@ -167,7 +167,7 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
             </div>
             
             <div className="flex-1 min-h-[400px] w-full mt-4">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height={400}>
                 <LineChart data={graphData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
