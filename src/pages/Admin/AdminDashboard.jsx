@@ -160,7 +160,7 @@ const AdminDashboard = () => {
             activeRooms={activeRoomsCount} 
             avgUsage={avgUsageHours}
             issues={issues} 
-            activeSessions={sessions.filter(session => !session.timeOut)}
+            activeSessions={currentActiveSessions}
             allSessions={[...sessions, ...fakeHistory]}
           />
         </section>
