@@ -2,7 +2,7 @@
 
 > A modern, real-time laboratory management and session tracking system designed for North Eastern University.
 
-🚀 **Live Demo:** neu-lab-logs-ochre.vercel.app
+🚀 **Live Demo:** [neu-lab-logs-ochre.vercel.app](https://neu-lab-logs-ochre.vercel.app)
 
 ---
 
