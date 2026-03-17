@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // --- Components ---
-import LoginScreen from "./components/LoginScreen";
+import GoogleAuth from "./components/GoogleAuth";
+import RoomEntry from "./components/RoomEntry";
 import ActiveSession from "./components/ActiveSession";
 
 // --- Admin Components ---
@@ -12,41 +13,39 @@ import AdminRoute from "./pages/Admin/AdminRoute";
 import './App.css'; 
 
 // =========================================
-// 1. The "Student View" 
+// 1. The "Student Flow" (Clock-in -> Active Session)
 // =========================================
-function StudentView() {
+function StudentFlow() {
   const [currentSession, setCurrentSession] = useState(null);
 
   useEffect(() => {
+    // Check if the user refreshed the page while in an active session
     const savedSession = localStorage.getItem("activeSession");
     if (savedSession) {
       setCurrentSession(JSON.parse(savedSession));
     }
   }, []);
 
-  // UPDATED: Now accepts 3 arguments to match your LoginScreen call
-  // (room, user, sessionId) comes from: onSessionStart(selectedRoom, identifier, docRef.id)
   const handleSessionStart = (room, user, sessionId) => {
-    
-    // 1. Safety Check: If 'user' is a complex object (from Google Auth), 
-    // just grab the email. If it's a string (Guest), keep it.
-    const userName = user?.email || user || "Anonymous";
+    // 1. Clean the user data 
+    const userName = user?.email || user || "Authorized User";
 
-    // 2. Create a clean session object
+    // 2. Create the session object
     const sessionData = { 
       room, 
       user: userName, 
       sessionId 
     };
 
-    // 3. Update State (Switch UI to ActiveSession)
+    // 3. Update State (Switches UI from RoomEntry to ActiveSession)
     setCurrentSession(sessionData);
 
-    // 4. Update Storage (Keep user logged in on refresh)
+    // 4. Update Storage (Keeps user logged in on refresh)
     localStorage.setItem("activeSession", JSON.stringify(sessionData));
   };
 
   const handleLogout = () => {
+    // Clears the session and returns them to the Room Selection screen
     setCurrentSession(null);
     localStorage.removeItem("activeSession"); 
   };
@@ -61,7 +60,7 @@ function StudentView() {
           onLogout={handleLogout} 
         />
       ) : (
-        <LoginScreen onSessionStart={handleSessionStart} />
+        <RoomEntry onSessionStart={handleSessionStart} />
       )}
     </div>
   );
@@ -74,10 +73,13 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Route 1: The Default Student/User View */}
-        <Route path="/" element={<StudentView />} />
+        {/* Route 1: The Initial Secure Google Auth Wall */}
+        <Route path="/" element={<GoogleAuth />} />
 
-        {/* Route 2: The Protected Admin Dashboard */}
+        {/* Route 2: The Protected Lab Entry & Active Session Flow */}
+        <Route path="/clock-in" element={<StudentFlow />} />
+
+        {/* Route 3: The Protected Admin Dashboard */}
         <Route 
           path="/admin" 
           element={
@@ -86,6 +88,9 @@ function App() {
             </AdminRoute>
           } 
         />
+
+        {/* Catch-all: Redirect unknown routes back to the Auth wall */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
