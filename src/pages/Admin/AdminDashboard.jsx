@@ -88,7 +88,6 @@ const LiveSessionPreviewModal = ({ session, onClose, onForceEnd }) => {
     );
 };
 
-
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard'); 
@@ -203,7 +202,7 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
         <p className="text-xl text-blue-600 font-semibold animate-pulse">Loading Admin Portal...</p>
       </div>
     );
@@ -211,12 +210,12 @@ const AdminDashboard = () => {
 
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-200 text-center max-w-md w-full">
+      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] p-4">
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 text-center max-w-md w-full">
           <div className="text-5xl mb-4">🔒</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-gray-600 mb-6">You must be registered as an admin to view this portal.</p>
-          <button onClick={handleLogout} className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">Return Home</button>
+          <p className="text-gray-500 mb-6 font-medium">You must be registered as an admin to view this portal.</p>
+          <button onClick={handleLogout} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition">Return Home</button>
         </div>
       </div>
     );
@@ -226,8 +225,15 @@ const AdminDashboard = () => {
   const activeRoomsCount = new Set(currentActiveSessions.map(s => s.room)).size;
   const avgUsageHours = calculateAverageUsage(sessions);
 
+  // SVG Icons for Sidebar
+  const icons = {
+      dashboard: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>,
+      qrcodes: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>,
+      users: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex font-sans text-gray-900">
+    <div className="min-h-screen bg-[#F8FAFC] flex font-sans text-gray-900">
       
       {previewSession && (
           <LiveSessionPreviewModal 
@@ -237,56 +243,82 @@ const AdminDashboard = () => {
           />
       )}
 
-      {/* LEFT SIDEBAR */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-10 shadow-sm">
-         <div className="p-6 border-b border-gray-100 flex items-center gap-3">
-             <div className="bg-blue-600 text-white p-2 rounded-lg"><span className="font-bold text-lg">NEU</span></div>
+      {/* LEFT SIDEBAR (Wireframe Matched) */}
+      <aside className="w-[280px] bg-white border-r border-gray-200 flex flex-col fixed h-full z-10">
+         
+         {/* Top Logo Area */}
+         <div className="p-6 flex items-center gap-4">
+             <div className="w-12 h-12 bg-[#1d4ed8] text-white rounded-xl flex items-center justify-center shadow-sm">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+             </div>
              <div>
-                <h2 className="font-bold text-md leading-tight">Admin Portal</h2>
-                <p className="text-xs text-gray-500">Laboratory Log</p>
+                <h2 className="font-extrabold text-lg leading-none text-gray-900 tracking-tight">NEU Admin</h2>
+                <p className="text-xs text-gray-500 font-medium mt-1">Laboratory Log</p>
              </div>
          </div>
 
-         <nav className="flex-1 p-4 space-y-2 mt-4">
-             <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all ${activeTab === 'dashboard' ? 'bg-blue-50 text-blue-700' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'}`}>
-                 📊 Dashboard
+         {/* Navigation Links */}
+         <nav className="flex-1 px-4 space-y-1.5 mt-6">
+             <button 
+                onClick={() => setActiveTab('dashboard')} 
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm transition-all ${activeTab === 'dashboard' ? 'bg-[#EFF6FF] text-[#1d4ed8]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+             >
+                 {icons.dashboard} Dashboard
              </button>
-             <button onClick={() => setActiveTab('qrcodes')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all ${activeTab === 'qrcodes' ? 'bg-blue-50 text-blue-700' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'}`}>
-                 🔲 Room QR Codes
+             <button 
+                onClick={() => setActiveTab('qrcodes')} 
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm transition-all ${activeTab === 'qrcodes' ? 'bg-[#EFF6FF] text-[#1d4ed8]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+             >
+                 {icons.qrcodes} Room QR Codes
              </button>
-             <button onClick={() => setActiveTab('users')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all ${activeTab === 'users' ? 'bg-blue-50 text-blue-700' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'}`}>
-                 👥 User Management
+             <button 
+                onClick={() => setActiveTab('users')} 
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm transition-all ${activeTab === 'users' ? 'bg-[#EFF6FF] text-[#1d4ed8]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+             >
+                 {icons.users} User Management
              </button>
          </nav>
 
-         <div className="p-4 border-t border-gray-100 mt-auto">
-             <div className="flex items-center gap-3 mb-4 px-2">
-                 <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-sm">
+         {/* Bottom Admin Profile & Logout */}
+         <div className="p-6 mt-auto">
+             <div className="flex items-center gap-3 mb-6">
+                 <div className="w-10 h-10 bg-[#F1F5F9] text-gray-600 rounded-full flex items-center justify-center font-bold text-sm border border-gray-200">
                      {adminProfile?.name?.charAt(0) || 'A'}
                  </div>
                  <div className="overflow-hidden">
-                     <p className="text-sm font-bold text-gray-800 truncate">{adminProfile?.name}</p>
-                     <p className="text-xs text-gray-500 truncate">{adminProfile?.email}</p>
+                     <p className="text-sm font-bold text-gray-900 truncate">{adminProfile?.name}</p>
+                     <p className="text-[11px] text-gray-500 font-medium truncate">System Administrator</p>
                  </div>
              </div>
-             <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-600 font-bold hover:bg-red-50 rounded-lg transition-colors">
-                 ↪ Log Out
+             <button 
+                onClick={handleLogout} 
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 font-bold hover:bg-red-50 rounded-xl transition-colors"
+             >
+                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                 Log Out
              </button>
          </div>
       </aside>
 
-      <main className="flex-1 ml-64 p-8">
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 ml-[280px] p-10">
         
-        {/* --- VIEW 1: DASHBOARD OVERVIEW --- */}
+        {/* --- VIEW 1: DASHBOARD OVERVIEW (Wireframe Matched Header) --- */}
         {activeTab === 'dashboard' && (
-            <div className="max-w-7xl mx-auto animate-in fade-in duration-300">
-                <header className="mb-8 flex justify-between items-end">
-                  <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Admin Overview</h1>
-                    <p className="text-sm text-gray-500 mt-1">Real-time laboratory usage statistics and access logs.</p>
+           <div className="max-w-6xl mx-auto animate-in fade-in duration-300">
+                <header className="mb-10 flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+                    </div>
+                    <h1 className="text-2xl font-extrabold text-gray-900">Admin Overview</h1>
                   </div>
-                  <button onClick={handleExportCSV} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-md flex items-center gap-2 transition-all">
-                      📥 Export CSV
+                  <button 
+                    onClick={handleExportCSV} 
+                    className="bg-[#1d4ed8] hover:bg-blue-800 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm flex items-center gap-2 transition-all"
+                  >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                      Export CSV
                   </button>
                 </header>
                 
