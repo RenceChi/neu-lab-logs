@@ -46,14 +46,13 @@ const ActiveSession = ({ room, user, sessionId, onLogout }) => {
     return `${hours}:${minutes}:${seconds}`;
   };
 
-  // ✅ LOGOUT LOGIC (Updates Database)
+  // LOGOUT LOGIC (Updates Database)
   const handleEndSession = async () => {
     const confirmLogout = window.confirm("Are you sure you want to end this session?");
     if (!confirmLogout) return;
 
     try {
         if (sessionId) {
-            // Update Firestore Document
             const sessionRef = doc(db, "sessions", sessionId);
             await updateDoc(sessionRef, {
                 timeOut: serverTimestamp(),
@@ -62,10 +61,7 @@ const ActiveSession = ({ room, user, sessionId, onLogout }) => {
         } else {
             console.warn("No Session ID found. Logging out without DB update.");
         }
-
-        // Return to Login Screen
         onLogout(); 
-
     } catch (error) {
         console.error("Error signing out:", error);
         alert("Failed to clock out. Please try again.");
@@ -83,14 +79,19 @@ const ActiveSession = ({ room, user, sessionId, onLogout }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+        // --- THIS IS THE FIX ---
+        // Format the array into a comma-separated string, or default to "General"
+        const finalIssueType = reportType.length > 0 ? reportType.join(", ") : "General";
+
         await addDoc(collection(db, "reports"), {
             room: room,
-            user: user,
-            issues: reportType,
-            details: reportText,
+            user: displayName, // Saves the looked-up full name instead of just ID
+            type: finalIssueType, // Admin dashboard looks for 'type'
+            description: reportText, // Admin dashboard looks for 'description'
             timestamp: serverTimestamp(),
             status: "pending"
         });
+        
         alert("Report submitted successfully.");
         setIsReportOpen(false);
         setReportType([]);
@@ -156,7 +157,6 @@ const ActiveSession = ({ room, user, sessionId, onLogout }) => {
                     >
                         ⚠️ Report Issue
                     </button>
-                    {/* ✅ Button now calls handleEndSession */}
                     <button 
                         onClick={handleEndSession}
                         className="flex-1 py-4 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-200 transition flex items-center justify-center gap-2"
@@ -177,7 +177,7 @@ const ActiveSession = ({ room, user, sessionId, onLogout }) => {
                 <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                     <div>
                         <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">🚨 Report an Issue</h2>
-                        <p className="text-xs text-gray-500">Room: {room} • User: {user}</p>
+                        <p className="text-xs text-gray-500">Room: {room} • User: {displayName}</p>
                     </div>
                     <button onClick={() => setIsReportOpen(false)} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
                 </div>
