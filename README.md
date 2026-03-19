@@ -1,16 +1,29 @@
-# React + Vite
+# 🔬 NEU Laboratory Usage Log
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> A modern, real-time laboratory management and session tracking system designed for North Eastern University.
 
-Currently, two official plugins are available:
+🚀 **Live Demo:** [neu-lab-logs-ochre.vercel.app](https://neu-lab-logs-ochre.vercel.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 📖 Overview
+The NEU Laboratory Usage Log is a web-based application built to streamline how faculty, staff, and students clock in and out of university computer labs. It replaces traditional paper logs with a secure, real-time digital dashboard, featuring both QR-based ID scanning and manual entry. 
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## ✨ Key Features
+* **📸 Smart ID Scanning:** Built-in camera integration to quickly scan institutional IDs for frictionless clock-ins.
+* **🔐 Multi-Method Authentication:** Supports quick Google Workspace login (SSO) and manual NEU ID entry.
+* **⏱️ Real-Time Session Tracking:** Live timers accurately track active laboratory usage for every individual user.
+* **⚠️ Issue Reporting System:** Users can instantly report faulty hardware (e.g., broken keyboards, monitors) or network issues directly to IT support from their active session.
+* **📊 Admin Analytics (Dashboard):** A comprehensive overview of active rooms, average daily usage, and pending hardware reports.
+* **🎨 "Clean Academic" UI:** A highly polished, responsive interface tailored for educational institutions.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 💻 Tech Stack
+* **Frontend Framework:** React.js (via Vite)
+* **Styling:** Tailwind CSS (v3)
+* **Backend / Database:** Firebase Firestore (Real-time NoSQL database)
+* **Authentication:** Firebase Auth (Google Provider)
+* **QR Scanning:** `html5-qrcode`
+
+---
