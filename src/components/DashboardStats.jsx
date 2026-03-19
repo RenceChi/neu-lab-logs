@@ -2,13 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { updateIssue } from '../utils/firebase';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-// Added onForceEndSession to props
 const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [], allSessions = [], onIssueResolved, onPreviewSession, onForceEndSession }) => {
   const [activeModal, setActiveModal] = useState(null); 
   const [selectedIssue, setSelectedIssue] = useState(null); 
   const [isResolving, setIsResolving] = useState(false); 
 
-  // Hardcode rooms array so we can list them all in the modal
   const roomsList = ["M101", "M102", "M103", "M104", "M105", "M106", "M107", "M108", "M109", "M110"];
 
   const handleMarkResolved = async () => {
@@ -72,8 +70,6 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        
-        {/* Active Rooms Card */}
         <div onClick={() => setActiveModal('rooms')} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative cursor-pointer hover:shadow-md transition-shadow hover:border-blue-300">
           <h3 className="text-sm font-semibold text-gray-500 mb-2">Active Rooms</h3>
           <p className="text-3xl font-bold text-gray-900 flex items-baseline gap-1">
@@ -85,7 +81,6 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
           </p>
         </div>
         
-        {/* Avg Daily Usage Card */}
         <div onClick={() => setActiveModal('usage')} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative cursor-pointer hover:shadow-md transition-shadow hover:border-indigo-300">
           <h3 className="text-sm font-semibold text-gray-500 mb-2">Avg Daily Usage</h3>
           <p className="text-3xl font-bold text-gray-900 flex items-baseline gap-1">
@@ -95,7 +90,6 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
           <p className="text-xs text-indigo-500 font-medium mt-4 flex items-center gap-1">Click to view analytics</p>
         </div>
 
-        {/* Pending Reports Card */}
         <div onClick={() => setActiveModal('reports')} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative cursor-pointer hover:shadow-md transition-shadow hover:border-orange-300">
           <h3 className="text-sm font-semibold text-gray-500 mb-2">Pending Reports</h3>
           <p className="text-3xl font-bold text-gray-900">{pendingReportsCount}</p>
@@ -105,8 +99,6 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
           </p>
         </div>
       </div>
-
-      {/* --- MODALS --- */}
 
       {/* Usage Graph Modal */}
       {activeModal === 'usage' && (
@@ -136,7 +128,7 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
         </div>
       )}
       
-      {/* Reports Modal */}
+      {/* Reports List Modal */}
       {activeModal === 'reports' && !selectedIssue && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6 max-h-[80vh] flex flex-col">
@@ -153,10 +145,13 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
                   {issues.map((report, idx) => (
                     <div key={idx} onClick={() => setSelectedIssue(report)} className="p-4 border border-orange-200 bg-orange-50 rounded-xl cursor-pointer hover:bg-orange-100 hover:border-orange-300 transition-all hover:shadow-md">
                       <div className="flex justify-between items-start mb-2">
-                        <span className="font-bold text-orange-800">{report.room || 'General'}</span>
+                        <span className="font-bold text-orange-800">{report.room || report.location || 'General'}</span>
                         <span className="text-xs text-orange-600 font-bold bg-orange-200 px-2 py-1 rounded uppercase">Pending</span>
                       </div>
-                      <p className="text-gray-700">{report.description || report.issue || "No details provided."}</p>
+                      {/* Robust check for the description text */}
+                      <p className="text-gray-700">
+                        {report.description || report.issue || report.details || report.message || report.reportText || "No details provided."}
+                      </p>
                       <p className="text-xs text-gray-500 mt-2">Click to view details →</p>
                     </div>
                   ))}
@@ -180,25 +175,31 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
               <div>
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Location</h3>
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                  <p className="text-lg font-bold text-orange-900">{selectedIssue.room || 'General'}</p>
+                  <p className="text-lg font-bold text-orange-900">{selectedIssue.room || selectedIssue.location || 'General'}</p>
                 </div>
               </div>
               <div>
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Issue Type</h3>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-lg font-bold text-blue-900 capitalize">{selectedIssue.type || 'General'}</p>
+                  {/* Robust check for the type text */}
+                  <p className="text-lg font-bold text-blue-900 capitalize">
+                    {selectedIssue.type || selectedIssue.issueType || selectedIssue.category || 'General'}
+                  </p>
                 </div>
               </div>
               <div>
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Issue Description</h3>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <p className="text-gray-800 leading-relaxed">{selectedIssue.description || selectedIssue.issue}</p>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 min-h-[80px]">
+                  {/* Robust check for the description text */}
+                  <p className="text-gray-800 leading-relaxed">
+                    {selectedIssue.description || selectedIssue.issue || selectedIssue.details || selectedIssue.message || selectedIssue.reportText || "No description provided."}
+                  </p>
                 </div>
               </div>
               <div>
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Reported By</h3>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <p className="text-gray-800">{selectedIssue.user || 'Anonymous'}</p>
+                  <p className="text-gray-800">{selectedIssue.user || selectedIssue.userName || selectedIssue.reportedBy || 'Anonymous'}</p>
                 </div>
               </div>
               <div>
@@ -209,10 +210,10 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
                   </span>
                 </div>
               </div>
-              {(selectedIssue.reportedAt || selectedIssue.timestamp) && (
+              {(selectedIssue.reportedAt || selectedIssue.timestamp || selectedIssue.createdAt) && (
                 <div>
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Reported At</h3>
-                  <p className="text-gray-700">{formatTimestamp(selectedIssue.reportedAt || selectedIssue.timestamp)}</p>
+                  <p className="text-gray-700">{formatTimestamp(selectedIssue.reportedAt || selectedIssue.timestamp || selectedIssue.createdAt)}</p>
                 </div>
               )}
               <div className="flex gap-3 pt-4 border-t">
@@ -224,7 +225,7 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
         </div>
       )}
 
-      {/* 2. ALL ROOMS Modal (Redesigned) */}
+      {/* ALL ROOMS Modal */}
       {activeModal === 'rooms' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl p-6 max-h-[80vh] flex flex-col">
@@ -239,14 +240,12 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
             <div className="overflow-y-auto flex-1 pr-2 mt-2">
                 <div className="space-y-3">
                   {roomsList.map(room => {
-                    // Check if this specific room has an active session
                     const session = activeSessions.find(s => s.room === room);
                     const isOccupied = !!session;
 
                     return (
                         <div key={room} className={`p-4 border rounded-xl flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-shadow ${isOccupied ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-white'}`}>
                             
-                            {/* Room Info */}
                             <div>
                                 <p className={`font-bold text-lg ${isOccupied ? 'text-blue-900' : 'text-gray-700'}`}>{room}</p>
                                 {isOccupied ? (
@@ -256,7 +255,6 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
                                 )}
                             </div>
                             
-                            {/* Action Buttons (Only show if occupied) */}
                             {isOccupied && (
                                 <div className="flex items-center gap-3 self-end sm:self-auto">
                                     <div className="hidden sm:block text-right mr-2 border-r border-blue-200 pr-4">
@@ -266,7 +264,6 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
                                         </p>
                                     </div>
                                     
-                                    {/* Live View Button */}
                                     {onPreviewSession && (
                                         <button 
                                             onClick={() => { setActiveModal(null); onPreviewSession(session); }}
@@ -276,7 +273,6 @@ const DashboardStats = ({ activeRooms, avgUsage, issues = [], activeSessions = [
                                         </button>
                                     )}
 
-                                    {/* New Force End Button */}
                                     {onForceEndSession && (
                                         <button 
                                             onClick={() => onForceEndSession(session.id, session.userName || session.user)}
