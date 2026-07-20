@@ -1,6 +1,6 @@
 #  NEU Laboratory Usage Log
 
-> A modern, real-time laboratory management and session tracking system designed for North Eastern University.
+> A modern, real-time laboratory management and session tracking system.
 
  **Live Demo:** [neu-lab-logs-ochre.vercel.app](https://neu-lab-logs-ochre.vercel.app)
 
