@@ -43,6 +43,6 @@ The NEU Laboratory Usage Log is a web-based application built to streamline how 
 
 ## Admin Interface 
 
-![Uploading image.png…]()
+<img width="1873" height="960" alt="image" src="https://github.com/user-attachments/assets/0589be2c-267d-45b4-b81a-199078c01aa0" />
 
 
